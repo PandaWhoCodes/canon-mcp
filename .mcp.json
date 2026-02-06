@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "grounding-docs": {
+      "type": "http",
+      "url": "https://cannon-mcp.fly.dev/mcp",
+      "headers": {
+        "Authorization": "Bearer ${MCP_GITHUB_TOKEN}"
+      }
+    }
+  }
+}
