@@ -1,0 +1,54 @@
+name: Sync frontend docs to grounding-docs
+
+on:
+  push:
+    branches:
+      - frontend
+
+jobs:
+  sync-docs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout frontend branch
+        uses: actions/checkout@v4
+        with:
+          ref: frontend
+          path: frontend-src
+
+      - name: Checkout grounding-docs branch
+        uses: actions/checkout@v4
+        with:
+          ref: grounding-docs
+          path: grounding-docs
+
+      - name: Sync frontend docs
+        run: |
+          # Wipe the frontend folder in grounding-docs (true sync — deletes removed files)
+          rm -rf grounding-docs/frontend
+          mkdir -p grounding-docs/frontend
+
+          # Copy CLAUDE.md
+          if [ -f frontend-src/CLAUDE.md ]; then
+            cp frontend-src/CLAUDE.md grounding-docs/frontend/CLAUDE.md
+          fi
+
+          # Copy everything from docs/
+          if [ -d frontend-src/docs ]; then
+            cp -r frontend-src/docs/* grounding-docs/frontend/
+          fi
+
+      - name: Commit and push
+        run: |
+          cd grounding-docs
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A frontend/
+          if git diff --cached --quiet; then
+            echo "No changes to sync"
+          else
+            git commit -m "sync: frontend docs from frontend branch"
+            git push origin grounding-docs
+          fi
